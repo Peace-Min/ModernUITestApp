@@ -8,7 +8,179 @@
         mc:Ignorable="d"
         Title="Modern 3rd Party Integration Demo" Height="600" Width="800">
     
+    <Window.Resources>
+        <!-- Modern Button Style -->
+        <Style x:Key="ExportButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontFamily" Value="Malgun Gothic"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="6">
+                            <Grid>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F9FAFB"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#9CA3AF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F3F4F6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Menu Button Style -->
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F3F4F6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Modern Context Menu Style (Dropdown) -->
+        <Style x:Key="DropdownMenuStyle" TargetType="{x:Type ContextMenu}">
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="HasDropShadow" Value="True" />
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ContextMenu}">
+                        <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="4">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10" Direction="270" Opacity="0.1" ShadowDepth="2"/>
+                            </Border.Effect>
+                            <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style TargetType="MenuItem">
+             <Setter Property="FontFamily" Value="Malgun Gothic"/>
+             <Setter Property="FontSize" Value="13"/>
+             <Setter Property="Padding" Value="12,8"/>
+             <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                         <Border x:Name="border" Background="Transparent" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter Content="{TemplateBinding Header}"/>
+                         </Border>
+                         <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F3F4F6"/>
+                            </Trigger>
+                         </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+             </Setter>
+        </Style>
+    </Window.Resources>
+    
     <Grid Background="#F9FAFB">
+        <!-- TOP BAR (Just for layout) -->
+        <Grid VerticalAlignment="Top" Height="60" Panel.ZIndex="10">
+            <!-- EXPORT BUTTON -->
+            <Button x:Name="ExportBtn" 
+                    Style="{StaticResource ExportButtonStyle}" 
+                    HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0"
+                    Click="OnExportBtnClick">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="내보내기" Margin="0,0,6,0"/>
+                    <Path Data="M0,0 L4,4 L8,0" Stroke="#6B7280" StrokeThickness="1.5" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+
+            <!-- CUSTOM POPUP MENU -->
+            <Popup x:Name="ExportPopup" 
+                   PlacementTarget="{Binding ElementName=ExportBtn}" 
+                   Placement="Bottom" 
+                   StaysOpen="False" 
+                   AllowsTransparency="True" 
+                   PopupAnimation="Fade">
+                
+                <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="8" Padding="0" MinWidth="240" Margin="0,4,0,0">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" Direction="270" Opacity="0.15" ShadowDepth="4"/>
+                    </Border.Effect>
+                    
+                    <StackPanel>
+                        <!-- MENU ITEMS -->
+                        <Button Style="{StaticResource MenuButtonStyle}" Click="OnExportCurrentClick" Margin="4,4,4,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M5,19V17H12V19H5M19,19H14V17H19V19M19,15H14V13H19V15M19,11H14V9H19V11M19,7H14V5H19V7M12,15H5V5H12V15Z" 
+                                      Fill="#555" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0"/>
+                                <TextBlock Text="현재 테이블 내보내기" FontFamily="Malgun Gothic" FontSize="13" Foreground="#374151"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <Button Style="{StaticResource MenuButtonStyle}" Click="OnExportAllClick" Margin="4,0,4,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M13,9V3.5L18.5,9H13Z" 
+                                      Fill="#555" Width="14" Height="14" Stretch="Uniform" Margin="0,0,8,0"/>
+                                <TextBlock Text="전체 데이터 내보내기" FontFamily="Malgun Gothic" FontSize="13" Foreground="#374151"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Separator Background="#F3F4F6" Margin="0,4"/>
+
+                        <!-- PATH SELECTION SECTION -->
+                        <Grid Background="#F9FAFB" Margin="0,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Path Text (Truncated) -->
+                            <StackPanel Margin="12,8">
+                                <TextBlock Text="저장 위치" FontSize="11" Foreground="#9CA3AF" FontWeight="Bold" Margin="0,0,0,2" FontFamily="Malgun Gothic"/>
+                                <TextBlock x:Name="PathText" Text="C:\Users\Default\Downloads" 
+                                           FontSize="12" Foreground="#4B5563" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"
+                                           FontFamily="Consolas, Segoe UI"/>
+                            </StackPanel>
+                            
+                            <!-- Folder Browse Button -->
+                            <Button Grid.Column="1" Click="OnBrowsePathClick" Background="Transparent" BorderThickness="0" Padding="8" Cursor="Hand" ToolTip="폴더 변경">
+                                <Path Data="M20,18H4V8H20M20,6H12L10,4H4A2,2 0 0,0 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8A2,2 0 0,0 20,6Z" 
+                                      Fill="#6B7280" Width="16" Height="16" Stretch="Uniform"/>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Popup>
+        </Grid>
+        
         <!-- 
            LAYER 1: The "3rd Party" Canvas 
            We use an ItemsControl to simulate the internal rendering of the 3rd party tool.
