@@ -1,0 +1,7 @@
+
+# Visual Studio default ignore
+.vs/
+bin/
+obj/
+*.user
+*.suo
