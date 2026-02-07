@@ -111,6 +111,12 @@
     <Grid Background="#F9FAFB">
         <!-- TOP BAR (Just for layout) -->
         <Grid VerticalAlignment="Top" Height="60" Panel.ZIndex="10">
+            <!-- TEST MENU BUTTON -->
+            <Button Content="Custom Menu Test" 
+                    HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0"
+                    Click="OnTestMenuClick"
+                    Padding="10,5"/>
+
             <!-- EXPORT BUTTON -->
             <Button x:Name="ExportBtn" 
                     Style="{StaticResource ExportButtonStyle}" 

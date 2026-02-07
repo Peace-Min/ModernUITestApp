@@ -31,6 +31,29 @@ namespace ModernUITestApp.Views
             MenuPopup.IsOpen = true;
         }
 
+        public void ShowEditor(AnnotationViewModel target)
+        {
+            _currentTarget = target;
+            if (_currentTarget == null) return;
+
+            // 1. Close Menu if open
+            MenuPopup.IsOpen = false;
+
+            // 2. Setup Editor
+            _originalText = _currentTarget.Text;
+            EditorTextBox.Text = _originalText;
+            EditorTextBox.Focus();
+            EditorTextBox.SelectAll();
+
+            // 3. Position Editor (Simple default position or relative to Menu)
+            // If MenuPopup was just open, use its last known position, otherwise center or use default
+            EditorPopup.HorizontalOffset = MenuPopup.HorizontalOffset;
+            EditorPopup.VerticalOffset = MenuPopup.VerticalOffset;
+
+            // 4. Open
+            EditorPopup.IsOpen = true;
+        }
+
         public void HideAll()
         {
             MenuPopup.IsOpen = false;

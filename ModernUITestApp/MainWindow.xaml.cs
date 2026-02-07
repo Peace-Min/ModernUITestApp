@@ -91,5 +91,37 @@ namespace ModernUITestApp
                 PathText.Text = folder;
             }
         }
+
+        private void OnTestMenuClick(object sender, RoutedEventArgs e)
+        {
+            // 사용 예제: ContextmenuEditorKR 인스턴스 생성 및 사용
+            var menu = new ModernUITestApp.Views.ContextmenuEditorKR();
+
+            // 메뉴 항목 추가
+            var editItem = new MenuItem { Header = "편집 (Edit)" };
+            editItem.Click += (s, args) =>
+            {
+                // 정말 단순하게 텍스트만 수정하고 결과를 받아오는 예제
+                string currentText = "편집할 텍스트 (Click to Edit)";
+
+                menu.ShowEditor(currentText, (newText) =>
+                {
+                    // 여기서 수정된 텍스트를 처리 (예: DB 저장, UI 갱신 등)
+                    MessageBox.Show($"수정된 내용: {newText}");
+                });
+            };
+            menu.Items.Add(editItem);
+            menu.Items.Add(new MenuItem { Header = "삭제 (Delete)" });
+            menu.Items.Add(new Separator());
+
+            var exitItem = new MenuItem { Header = "닫기 (Close)" };
+            exitItem.Click += (s, args) => menu.IsOpen = false;
+            menu.Items.Add(exitItem);
+
+            // 위치 설정 및 표시
+            menu.PlacementTarget = sender as UIElement;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            menu.IsOpen = true;
+        }
     }
 }

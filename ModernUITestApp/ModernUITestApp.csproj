@@ -92,6 +92,13 @@
     <Compile Include="Views\GlobalEditorOverlayKR.xaml.cs">
       <DependentUpon>GlobalEditorOverlayKR.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ContextmenuEditorKR.xaml.cs">
+      <DependentUpon>ContextmenuEditorKR.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Views\ContextmenuEditorKR.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
