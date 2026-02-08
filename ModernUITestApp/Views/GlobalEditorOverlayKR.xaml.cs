@@ -10,6 +10,7 @@ namespace ModernUITestApp.Views
         // TARGET STATE (The "Model" we are editing)
         private AnnotationViewModel _currentTarget;
         private string _originalText;
+        private System.Action<string> _onSaveCallback;
 
         public GlobalEditorOverlayKR()
         {
@@ -34,6 +35,7 @@ namespace ModernUITestApp.Views
         public void ShowEditor(AnnotationViewModel target)
         {
             _currentTarget = target;
+            _onSaveCallback = null; // Clear generic callback
             if (_currentTarget == null) return;
 
             // 1. Close Menu if open
@@ -46,12 +48,37 @@ namespace ModernUITestApp.Views
             EditorTextBox.SelectAll();
 
             // 3. Position Editor (Simple default position or relative to Menu)
-            // If MenuPopup was just open, use its last known position, otherwise center or use default
+            EditorPopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Absolute;
             EditorPopup.HorizontalOffset = MenuPopup.HorizontalOffset;
             EditorPopup.VerticalOffset = MenuPopup.VerticalOffset;
 
             // 4. Open
             EditorPopup.IsOpen = true;
+        }
+
+        public void ShowEditor(string text, System.Action<string> onSave, Point position)
+        {
+            _currentTarget = null; // Clear specific target
+            _onSaveCallback = onSave;
+
+            // 1. Close Menu if open
+            MenuPopup.IsOpen = false;
+
+            // 2. Setup Editor
+            _originalText = text;
+            EditorTextBox.Text = text ?? string.Empty;
+
+            // 3. Position Editor
+            EditorPopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Absolute;
+            EditorPopup.HorizontalOffset = position.X;
+            EditorPopup.VerticalOffset = position.Y;
+
+            // 4. Open
+            EditorPopup.IsOpen = true;
+
+            // Focus
+            EditorTextBox.Focus();
+            EditorTextBox.SelectAll();
         }
 
         public void HideAll()
@@ -109,6 +136,10 @@ namespace ModernUITestApp.Views
                     if (_currentTarget != null)
                     {
                         _currentTarget.Text = EditorTextBox.Text;
+                    }
+                    else
+                    {
+                        _onSaveCallback?.Invoke(EditorTextBox.Text);
                     }
                     EditorPopup.IsOpen = false;
                     e.Handled = true;

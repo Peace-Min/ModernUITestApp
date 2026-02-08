@@ -227,5 +227,37 @@
         <TextBlock Text="Right-click on any grey box to simulate 3rd party event" 
                    VerticalAlignment="Bottom" HorizontalAlignment="Center" 
                    Margin="20" Foreground="#AAA" FontStyle="Italic"/>
+        <!-- 3. DIRECT CODE-BEHIND CONTROLLED POPUP -->
+        <!-- 사용자가 비하인드 코드에서 직접 제어하기를 원하는 팝업 -->
+        <Popup x:Name="MainEditorPopup"
+               StaysOpen="False"
+               AllowsTransparency="True"
+               PopupAnimation="Fade">
+            
+            <Border Background="White" CornerRadius="4" Padding="6" BorderBrush="#D1D5DB" BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="3" Opacity="0.15" Direction="270"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                         <RowDefinition Height="Auto"/>
+                         <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Text="텍스트 편집" FontSize="10" Foreground="#AAA" Margin="0,0,0,4" FontFamily="Malgun Gothic"/>
+                    
+                    <TextBox x:Name="MainEditorTextBox"
+                             Grid.Row="1"
+                             Width="220"
+                             Padding="4"
+                             BorderThickness="0"
+                             Background="#F3F4F6"
+                             FontSize="13"
+                             FontFamily="Malgun Gothic"
+                             KeyDown="MainEditorTextBox_KeyDown"/>
+                </Grid>
+            </Border>
+        </Popup>
+
     </Grid>
 </Window>

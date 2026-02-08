@@ -92,36 +92,68 @@ namespace ModernUITestApp
             }
         }
 
+        // --- DIRECT POPUP EDITOR LOGIC ---
+
+        private System.Action<string> _textEditCallback;
+
         private void OnTestMenuClick(object sender, RoutedEventArgs e)
         {
-            // 사용 예제: ContextmenuEditorKR 인스턴스 생성 및 사용
-            var menu = new ModernUITestApp.Views.ContextmenuEditorKR();
+            // 1. 수정할 텍스트
+            string currentText = "편집할 텍스트 (Click to Edit)";
 
-            // 메뉴 항목 추가
-            var editItem = new MenuItem { Header = "편집 (Edit)" };
-            editItem.Click += (s, args) =>
+            // 2. 마우스 위치 가져오기 (Window 기준)
+            Point mousePos = Mouse.GetPosition(this);
+
+            // 3. 비하인드 코드에 만들어둔 팝업 제어
+            // 사용자의 요청대로 "editText.Text = ..." 스타일로 직접 제어
+            ShowTextEditor(currentText, mousePos, (newText) =>
             {
-                // 정말 단순하게 텍스트만 수정하고 결과를 받아오는 예제
-                string currentText = "편집할 텍스트 (Click to Edit)";
+                MessageBox.Show($"[MainPopup] 수정됨: {newText}");
+            });
+        }
 
-                menu.ShowEditor(currentText, (newText) =>
-                {
-                    // 여기서 수정된 텍스트를 처리 (예: DB 저장, UI 갱신 등)
-                    MessageBox.Show($"수정된 내용: {newText}");
-                });
-            };
-            menu.Items.Add(editItem);
-            menu.Items.Add(new MenuItem { Header = "삭제 (Delete)" });
-            menu.Items.Add(new Separator());
+        private void ShowTextEditor(string text, Point pos, System.Action<string> onSave)
+        {
+            // 콜백 저장
+            _textEditCallback = onSave;
 
-            var exitItem = new MenuItem { Header = "닫기 (Close)" };
-            exitItem.Click += (s, args) => menu.IsOpen = false;
-            menu.Items.Add(exitItem);
+            // 1. 값 설정
+            MainEditorTextBox.Text = text;
 
-            // 위치 설정 및 표시
-            menu.PlacementTarget = sender as UIElement;
-            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-            menu.IsOpen = true;
+            // 2. 위치 설정 (Relative to Window)
+            // PlacementMode.Relative를 사용하고, PlacementTarget을 Window(this)로 설정하면
+            // 지정된 좌표(pos)가 Window 내의 상대 좌표로 작동합니다.
+            MainEditorPopup.PlacementTarget = this;
+            MainEditorPopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Relative;
+            MainEditorPopup.HorizontalOffset = pos.X;
+            MainEditorPopup.VerticalOffset = pos.Y;
+
+            // 3. 열기
+            MainEditorPopup.IsOpen = true;
+
+            // 4. 포커스
+            MainEditorTextBox.Focus();
+            MainEditorTextBox.SelectAll();
+        }
+
+        private void MainEditorTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                // Shift+Enter는 줄바꿈 허용 (Optional)
+                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) return;
+
+                // 저장 및 닫기
+                _textEditCallback?.Invoke(MainEditorTextBox.Text);
+                MainEditorPopup.IsOpen = false;
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                // 취소 및 닫기
+                MainEditorPopup.IsOpen = false;
+                e.Handled = true;
+            }
         }
     }
 }

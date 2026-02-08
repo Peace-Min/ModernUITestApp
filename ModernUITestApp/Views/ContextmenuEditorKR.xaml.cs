@@ -62,15 +62,18 @@ namespace ModernUITestApp.Views
 
             _onSaveCallback = onSave;
 
-            // 1. Close Menu
+            // 1. Capture target before closing to ensure valid context
+            var target = this.PlacementTarget ?? Application.Current.MainWindow;
+
+            // 2. Close Menu
             this.IsOpen = false;
 
-            // 2. Setup Editor
+            // 3. Setup Editor
             _editorTextBox.Text = initialText ?? string.Empty;
 
-            // 3. Position Editor
-            _editorPopup.PlacementTarget = this.PlacementTarget;
-            _editorPopup.Placement = PlacementMode.Bottom;
+            // 4. Position Editor at Mouse Pointer
+            _editorPopup.PlacementTarget = target;
+            _editorPopup.Placement = PlacementMode.MousePoint;
             _editorPopup.StaysOpen = false;
 
             // 4. Open
