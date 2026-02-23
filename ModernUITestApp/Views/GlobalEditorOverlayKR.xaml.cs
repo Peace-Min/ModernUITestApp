@@ -7,14 +7,22 @@ namespace ModernUITestApp.Views
 {
     public partial class GlobalEditorOverlayKR : UserControl
     {
-        // TARGET STATE (The "Model" we are editing)
-        private AnnotationViewModel _currentTarget;
-        private string _originalText;
-        private System.Action<string> _onSaveCallback;
+        // --- 상태 ---
+        private AnnotationViewModel            _currentTarget;
+        private string                         _originalText;
+        private System.Action<string>          _onSaveCallback;
+
+        // AllowsTransparency=False 독립 Window → 한글 IME 정상 동작
+        private EditorInputWindow _editorWindow;
 
         public GlobalEditorOverlayKR()
         {
             InitializeComponent();
+
+            // 에디터 Window 단일 인스턴스 생성 (Show/Hide 방식으로 재사용)
+            _editorWindow = new EditorInputWindow();
+            _editorWindow.SaveRequested   += OnEditorSaved;
+            _editorWindow.CancelRequested += OnEditorCancelled;
         }
 
         // --- PUBLIC API ---
@@ -23,68 +31,44 @@ namespace ModernUITestApp.Views
         {
             _currentTarget = target;
 
-            // Close Editor if open
-            EditorPopup.IsOpen = false;
+            // 에디터가 열려 있으면 닫기
+            _editorWindow.CloseEditor();
 
-            // Position and Open Menu
+            // 메뉴 위치 및 열기
             MenuPopup.HorizontalOffset = x;
-            MenuPopup.VerticalOffset = y;
-            MenuPopup.IsOpen = true;
+            MenuPopup.VerticalOffset   = y;
+            MenuPopup.IsOpen           = true;
         }
 
         public void ShowEditor(AnnotationViewModel target)
         {
-            _currentTarget = target;
-            _onSaveCallback = null; // Clear generic callback
+            _currentTarget  = target;
+            _onSaveCallback = null;
             if (_currentTarget == null) return;
 
-            // 1. Close Menu if open
             MenuPopup.IsOpen = false;
 
-            // 2. Setup Editor
             _originalText = _currentTarget.Text;
-            EditorTextBox.Text = _originalText;
-            EditorTextBox.Focus();
-            EditorTextBox.SelectAll();
-
-            // 3. Position Editor (Simple default position or relative to Menu)
-            EditorPopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Absolute;
-            EditorPopup.HorizontalOffset = MenuPopup.HorizontalOffset;
-            EditorPopup.VerticalOffset = MenuPopup.VerticalOffset;
-
-            // 4. Open
-            EditorPopup.IsOpen = true;
+            _editorWindow.OpenAt(_originalText,
+                                 MenuPopup.HorizontalOffset,
+                                 MenuPopup.VerticalOffset);
         }
 
         public void ShowEditor(string text, System.Action<string> onSave, Point position)
         {
-            _currentTarget = null; // Clear specific target
+            _currentTarget  = null;
             _onSaveCallback = onSave;
 
-            // 1. Close Menu if open
             MenuPopup.IsOpen = false;
 
-            // 2. Setup Editor
             _originalText = text;
-            EditorTextBox.Text = text ?? string.Empty;
-
-            // 3. Position Editor
-            EditorPopup.Placement = System.Windows.Controls.Primitives.PlacementMode.Absolute;
-            EditorPopup.HorizontalOffset = position.X;
-            EditorPopup.VerticalOffset = position.Y;
-
-            // 4. Open
-            EditorPopup.IsOpen = true;
-
-            // Focus
-            EditorTextBox.Focus();
-            EditorTextBox.SelectAll();
+            _editorWindow.OpenAt(text, position.X, position.Y);
         }
 
         public void HideAll()
         {
             MenuPopup.IsOpen = false;
-            EditorPopup.IsOpen = false;
+            _editorWindow.CloseEditor();
         }
 
         // --- INTERNAL HANDLERS ---
@@ -93,64 +77,36 @@ namespace ModernUITestApp.Views
         {
             if (_currentTarget == null) return;
 
-            // 1. Close Menu
+            // 1. 메뉴 닫기
+            double posX = MenuPopup.HorizontalOffset;
+            double posY = MenuPopup.VerticalOffset;
             MenuPopup.IsOpen = false;
 
-            // 2. Setup Editor
+            // 2. 에디터 창 열기 (위치는 메뉴가 있던 좌표)
             _originalText = _currentTarget.Text;
-            EditorTextBox.Text = _originalText;
-            EditorTextBox.Focus();
-            EditorTextBox.SelectAll();
-
-            // 3. Position Editor
-            EditorPopup.HorizontalOffset = MenuPopup.HorizontalOffset;
-            EditorPopup.VerticalOffset = MenuPopup.VerticalOffset;
-
-            // 4. Open
-            EditorPopup.IsOpen = true;
+            _editorWindow.OpenAt(_originalText, posX, posY);
         }
 
         private void OnDeleteClicked(object sender, RoutedEventArgs e)
         {
-            if (_currentTarget != null)
-            {
-                if (_currentTarget.DeleteCommand?.CanExecute(null) == true)
-                {
-                    _currentTarget.DeleteCommand.Execute(null);
-                }
-            }
+            if (_currentTarget?.DeleteCommand?.CanExecute(null) == true)
+                _currentTarget.DeleteCommand.Execute(null);
+
             MenuPopup.IsOpen = false;
         }
 
-        private void EditorBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void OnEditorSaved(string newText)
         {
-            if (e.Key == Key.Enter)
-            {
-                if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
-                {
-                    return; // New Line
-                }
-                else
-                {
-                    // Commit
-                    if (_currentTarget != null)
-                    {
-                        _currentTarget.Text = EditorTextBox.Text;
-                    }
-                    else
-                    {
-                        _onSaveCallback?.Invoke(EditorTextBox.Text);
-                    }
-                    EditorPopup.IsOpen = false;
-                    e.Handled = true;
-                }
-            }
-            else if (e.Key == Key.Escape)
-            {
-                // Cancel
-                EditorPopup.IsOpen = false;
-                e.Handled = true;
-            }
+            if (_currentTarget != null)
+                _currentTarget.Text = newText;
+            else
+                _onSaveCallback?.Invoke(newText);
+        }
+
+        private void OnEditorCancelled()
+        {
+            // 필요 시 원본 텍스트로 복원
+            // _currentTarget?.Text = _originalText;
         }
     }
 }

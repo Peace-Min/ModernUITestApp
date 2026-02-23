@@ -98,49 +98,7 @@
         </Popup>
 
 
-        <!-- 2. EDITOR POPUP (Korean) -->
-        <Popup x:Name="EditorPopup"
-               StaysOpen="False"
-               AllowsTransparency="True"
-               PopupAnimation="Fade"
-               Placement="Absolute">
-            
-            <Border Style="{StaticResource CalloutContainerStyle}">
-                 <Grid Margin="4">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Header -->
-                    <TextBlock Text="메모 편집" FontSize="9" FontWeight="Bold" Foreground="{StaticResource TextMutedColor}" Margin="2,0,0,4" FontFamily="Malgun Gothic"/>
-
-                    <!-- Editor Box -->
-                    <Border Grid.Row="1" Background="{StaticResource InputBackgroundColor}" CornerRadius="6" Padding="8,6">
-                        <TextBox x:Name="EditorTextBox"
-                                 Style="{StaticResource CalloutTextBoxStyle}"
-                                 AcceptsReturn="True"
-                                 PreviewKeyDown="EditorBox_PreviewKeyDown"/> 
-                    </Border>
-
-                    <!-- Helper Hints -->
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
-                         <!-- Hint: Shift + Enter -->
-                        <Border Background="{StaticResource KeyCapBackgroundColor}" CornerRadius="3" Padding="4,1" Margin="0,0,4,0">
-                            <TextBlock Text="Shift+Enter" Foreground="{StaticResource KeyCapTextColor}" FontSize="9"/>
-                        </Border>
-                        <TextBlock Text="줄바꿈" Foreground="{StaticResource TextMutedColor}" FontSize="9" Margin="0,0,8,0" FontFamily="Malgun Gothic" VerticalAlignment="Center"/>
-
-                        <!-- Hint: Enter -->
-                        <Border Background="{StaticResource KeyCapBackgroundColor}" CornerRadius="3" Padding="4,1" Margin="0,0,4,0">
-                            <TextBlock Text="Enter" Foreground="{StaticResource KeyCapTextColor}" FontSize="9"/>
-                        </Border>
-                        <TextBlock Text="저장" Foreground="{StaticResource TextMutedColor}" FontSize="9" FontFamily="Malgun Gothic" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </Popup>
+        <!-- EditorPopup 제거됨: 한글 IME 지원을 위해 EditorInputWindow(별도 Window)로 교체 -->
 
     </Canvas>
 </UserControl>
